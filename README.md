@@ -1,280 +1,160 @@
-# ♻️ PlasticConnect — AI-Powered Plastic Recycling Marketplace
+# Plastic Connect
 
-PlasticConnect is a modern SaaS platform that connects **plastic waste collectors, recyclers, and brands** to enable transparent, efficient, and sustainable plastic trading.
+A full-stack marketplace web application connecting **Plastic Collectors** and **Brands/Buyers** for managing plastic waste listings, comparing suppliers, and processing purchase orders.
 
-The platform helps users upload materials, grade plastic purity, and manage transactions in a digital recycling marketplace.
-
-This project is built as an **MVP (Minimum Viable Product)** with premium UI/UX and simulated backend logic.
-
----
-
-## 🚀 Features
-
-### 👤 User System
-
-* Instant account creation
-* No email verification required
-* Automatic login after signup
-* Role-based dashboards (Collector / Brand)
-* Local session management
+## Tech Stack
+- **Frontend**: React 18, React Router v6, Axios
+- **Backend**: Node.js, Express
+- **Database**: PostgreSQL
+- **Auth**: JWT (Role-based: Collector & Brand)
+- **Storage**: AWS S3 / Local static upload fallback
 
 ---
 
-### 🛒 Marketplace
-
-* View plastic material listings
-* Realistic mock marketplace data
-* Filters:
-
-  * Material type
-  * Grade (A / B / C)
-  * Location
-  * Price range
-* Prices displayed in Indian Rupees (₹)
-
----
-
-### 📷 Material Upload + Camera Capture
-
-Collectors can:
-
-* Enter material details manually
-* Capture image using device camera
-* Upload image from device
-* Preview image before analysis
-* Submit material for grading
-
-Works on:
-
-* Mobile devices
-* Desktop laptops
-
----
-
-### 🤖 AI Grading System
-
-After manual grading input, AI verifies material quality.
-
-AI returns:
-
-* Grade A — High purity
-* Grade B — Medium purity
-* Grade C — Low purity
-* Confidence score
-
-Grading results are saved per user.
-
----
-
-### 📊 Dashboard
-
-* Marketplace activity overview
-* Transaction summaries
-* Uploaded materials
-* User-specific data only
-
----
-
-### 💰 Transactions
-
-* Track completed trades
-* View material history
-* Currency formatted in ₹
-
----
-
-### 🎨 Premium UI / UX
-
-* Clean SaaS dashboard design
-* Mobile-first responsive layout
-* Glassmorphism cards
-* Smooth animations
-* Role-based sidebar
-* Loading skeletons
-* Empty states
-
----
-
-## 🧑‍💼 User Roles
-
-### Collector
-
-* Upload materials
-* Capture images
-* AI grading
-* Manage listings
-* View transactions
-
-### Brand / Recycler
-
-* Browse marketplace
-* Purchase materials
-* View transactions
-
----
-
-## 🧱 Tech Stack
-
-Frontend:
-
-* React
-* TypeScript
-* Tailwind CSS
-* shadcn/ui
-
-Browser APIs:
-
-* Camera access (getUserMedia)
-
-State Management:
-
-* Local mock database simulation
-
-Deployment:
-
-* Vercel
-
----
-
-## 🗂 Project Structure
+## Project Structure
 
 ```
-src/
- ├─ app/
- ├─ components/
- ├─ pages/
- ├─ marketplace/
- ├─ auth/
- ├─ grading/
- ├─ dashboard/
- └─ mock-db/
+Plastic_connect/
+├── START.bat           # One-click Windows startup script
+├── START.sh            # Linux/macOS startup script
+├── backend/
+│   ├── config/         # DB (PostgreSQL pool) and S3 configuration
+│   ├── controllers/    # Auth, listings, orders, brands, transactions
+│   ├── middleware/     # JWT authentication & role-based access
+│   ├── models/         # DB schema & automatic migration
+│   ├── routes/         # Express API routes
+│   └── server.js       # App entry point
+└── frontend/
+    └── src/
+        ├── api/        # Axios client & API services
+        ├── components/ # Navbar, ProtectedRoute
+        ├── context/    # AuthContext (Role & Token management)
+        └── pages/      # Collector & Brand portal views
 ```
 
 ---
 
-## ⚙️ Installation
+## Quick Start
 
-Clone repository:
-
+### One-Click Startup (Windows)
+Double-click **`START.bat`** or run:
+```cmd
+START.bat
 ```
-git clone https://github.com/yourusername/plasticconnect.git
-cd plasticconnect
-```
+This automatically boots both the backend on port **5000** and the frontend on port **3000**.
 
-Install dependencies:
+### Manual Startup
 
-```
+#### 1. Backend Setup
+```bash
+cd backend
 npm install
+# Ensure .env is populated
+npm start
+```
+*Backend runs on `http://localhost:5000`*
+
+#### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm start
+```
+*Frontend opens at `http://localhost:3000`*
+
+---
+
+## Portals & Features
+
+### 📦 Collector Portal
+- **Dashboard**: Quick navigation for listings and transactions.
+- **Add Listing**: Upload plastic waste quantity, price per kg, description, and photos.
+- **Active Listings**: View current listings with a **🗑️ Delete** button to retire listings and move them to Previous Listings.
+- **Previous Listings**: History of completed and inactive listings.
+- **Transactions & Order Requests**:
+  - Review incoming purchase order requests submitted by brands.
+  - **✓ Accept** or **✕ Reject** incoming order requests.
+  - View payment records with an option to delete records or clear history.
+
+### 🏢 Brand Portal
+- **Browse Listings**: View active listings with live supplier, pricing, and location details.
+- **Supplier Comparison (`/brand/compare`)**: Select 2 or 3 listings to compare side-by-side with automatic **Lowest Price** highlighting.
+- **Order Placement**: Request purchase orders with auto-generated unique **5-digit random Order IDs** (10000–99999).
+- **My Orders**: Track status (`Pending`, `Accepted`, `Rejected`) of all requested purchase orders.
+- **Transaction History**: View confirmed order billing and payment records with individual deletion and clear history options.
+- **Company Profile**: Manage business contact information, GST number, and address.
+
+---
+
+## API Reference
+
+### Authentication
+| Method | Endpoint           | Auth | Description                          |
+|--------|--------------------|------|--------------------------------------|
+| POST   | `/api/auth/register` | No   | Register as `collector` or `brand`   |
+| POST   | `/api/auth/login`    | No   | Login with email, password, and role |
+
+### Listings
+| Method | Endpoint                | Auth | Description                                |
+|--------|-------------------------|------|--------------------------------------------|
+| POST   | `/api/listings`         | Yes  | Create new listing (with photo upload)     |
+| GET    | `/api/listings/active`   | Yes  | Get active listings for current collector  |
+| GET    | `/api/listings/previous` | Yes  | Get inactive/completed listings            |
+| DELETE | `/api/listings/:id`     | Yes  | Delete active listing (moves to previous)  |
+
+### Orders
+| Method | Endpoint                  | Auth | Description                                    |
+|--------|---------------------------|------|------------------------------------------------|
+| POST   | `/api/orders`             | Yes  | Create order request (generates 5-digit ID)    |
+| GET    | `/api/orders/buyer`       | Yes  | Get order history for brand buyer              |
+| GET    | `/api/orders/collector`   | Yes  | Get incoming order requests for collector      |
+| PUT    | `/api/orders/:id/status`  | Yes  | Accept or reject order (`accepted`/`rejected`) |
+
+### Brands
+| Method | Endpoint                    | Auth | Description                               |
+|--------|-----------------------------|------|-------------------------------------------|
+| GET    | `/api/brands/listings/browse` | Yes  | Browse all active listings from collectors |
+| GET    | `/api/brands/profile`         | Yes  | Get brand company profile                 |
+| PUT    | `/api/brands/profile`         | Yes  | Update brand contact & billing details    |
+
+### Transactions
+| Method | Endpoint               | Auth | Description                               |
+|--------|------------------------|------|-------------------------------------------|
+| GET    | `/api/transactions`     | Yes  | Get transactions for current user/role    |
+| DELETE | `/api/transactions/:id` | Yes  | Delete individual transaction record      |
+| DELETE | `/api/transactions`     | Yes  | Clear all transaction history             |
+
+### System
+| Method | Endpoint  | Auth | Description      |
+|--------|-----------|------|------------------|
+| GET    | `/health` | No   | API health check |
+
+---
+
+## Environment Variables
+
+### Backend `.env`
+```env
+PORT=5000
+DATABASE_URL=postgresql://postgres:password@localhost:5432/collector_portal
+JWT_SECRET=your_super_secret_jwt_key
+JWT_EXPIRES_IN=7d
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-bucket
 ```
 
-Run development server:
-
-```
-npm run dev
-```
-
-Open browser:
-
-```
-http://localhost:3000
+### Frontend `.env`
+```env
+REACT_APP_API_URL=/api
 ```
 
 ---
 
-## 🔐 Authentication Behavior
-
-* Signup instantly creates active account
-* No email confirmation required
-* No OTP verification
-* Auto login after registration
-* User data stored in simulated database
-
----
-
-## 📦 Mock Database
-
-The app uses a local mock data layer that simulates:
-
-* Users
-* Marketplace listings
-* Transactions
-* Uploaded materials
-* AI grading results
-
-All data is connected logically to UI pages.
-
----
-
-## 🌍 Currency Format
-
-All monetary values displayed in:
-
-```
-Indian Rupees (₹)
-```
-
-Example:
-
-```
-₹2,10,000
-```
-
----
-
-## 📱 Device Support
-
-* Mobile browsers
-* Desktop browsers
-* Camera-enabled devices
-
----
-
-## 🧪 MVP Scope
-
-This project is a functional frontend simulation.
-
-Not included:
-
-* Real backend server
-* Payment gateway
-* Production AI model
-* Real authentication provider
-
----
-
-## 🔮 Future Roadmap
-
-* Real AI material detection
-* Payment integration
-* Logistics tracking
-* Smart pricing analytics
-* Blockchain recycling certificates
-* Real database (Supabase / MongoDB)
-* Admin dashboard
-* Notifications system
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome.
-
-For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## 📄 License
-
-MIT License
-
----
-
-## 💚 Mission
-
-Build a transparent digital ecosystem that makes plastic recycling profitable, traceable, and scalable.
-
----
-
-## 👨‍💻 Author
-
-Built as an MVP for sustainable recycling innovation.
+## Security & Architecture Highlights
+- Passwords hashed with `bcryptjs` (cost factor 12).
+- Role-based route protection for both frontend pages and backend API endpoints.
+- PostgreSQL database schemas with automatic schema migrations on startup.
+- Unique random 5-digit order identification system.
+- Cascading relationships between listings, orders, and transactions.
